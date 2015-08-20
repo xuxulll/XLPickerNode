@@ -370,10 +370,11 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
         
         for row in rowsToAdd {
             
-            
             var node = dataSource?.pickerNode(self, cellForRow: row as! Int, inComponent: component)
             
             assert(node != nil, "XLPickerNode: Unexpected to find optional nil in content cell. At lease one delegate method for returning picker cell.")
+            
+            contentNodes[component].addChild(node!)
             
             let n = Array(identifiers.keys)[0]
             node?.identifier = Array(identifiers.keys)[0]
@@ -381,7 +382,6 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
             let info = positionAndSizeForRow(row as! Int, forComponent: component)
             node!.position = info.position
             node?.zPosition = 100
-            contentNodes[component].addChild(node!)
             
             delegate?.pickerNode?(self, willDisplayCell: node!, forRow: row as! Int, forComponent: component)
             
@@ -466,7 +466,7 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
                     )
                 )
                 contentNode.anchorPoint = CGPointMake(0, 1)
-                var accuWidth: CGFloat = -componentWidths[0] + 0.001 //Must have some offset otherwise contentNode won't be rendered
+                var accuWidth: CGFloat = -size.width / 2
                 for i in 0 ..< index {
                     accuWidth += componentWidths[i]
                 }
@@ -522,8 +522,6 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
         
         if animated {
             
-            //let targetY = CGFloat(row) * rowHeight/* + rowHeight / 2*/ - contentNodes[component].size.height / 2
-            
             let rawPnt = contentNodes[component].position
             let newPosition = positionAndSizeForRow(row, forComponent: component).position
             
@@ -550,7 +548,7 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
     //MARK: Reusable
     private func visibleRectForComponent(component: Int) -> CGRect {
         let node = contentNodes[component]
-        return CGRectMake(node.position.x, node.position.y - size.height / 2, widthForComponent(component), size.height)
+        return CGRectMake(0, node.position.y - rowHeightForComponent(component) / 2 - size.height / 2, widthForComponent(component), size.height)
     }
     
     private func rowsForVisibleCellsInComponent(component: Int) -> [Int] {
@@ -582,11 +580,7 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
     }
     
     private func rectForCellAtRow(row: Int, inComponent component: Int) -> CGRect {
-        var totalWidth: CGFloat = 0
-        for i in 0 ..< component {
-            totalWidth += widthForComponent(i)
-        }
-        return CGRectMake(totalWidth, rowHeightForComponent(component) * CGFloat(row), widthForComponent(component), rowHeightForComponent(component))
+        return CGRectMake(0, rowHeightForComponent(component) * CGFloat(row), widthForComponent(component), rowHeightForComponent(component))
     }
     
     private func cellForRow(row: Int, forComponent component: Int) -> SKNode? {
