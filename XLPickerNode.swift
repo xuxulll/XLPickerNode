@@ -154,7 +154,6 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
                 *  Re-initialize indicator node since we deinit it when hiding indicator
                 */
                 indicatorNode = SKSpriteNode(color: indicatorColor, size: CGSizeMake(size.width, _maxRowHeight))
-                indicatorNode?.anchorPoint = CGPointMake(0, 0.5)
                 backgroundNode.addChild(indicatorNode!)
             } else {
                 /**
@@ -173,15 +172,35 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
     }
     
     /// Set background color or texture
-    var backgroundColor: UIColor = UIColor.blackColor() {
+    var backgroundColor: UIColor = UIColor.clearColor() {
         didSet {
-            backgroundNode?.color = backgroundColor
+            if backgroundColor == UIColor.clearColor() {
+                colorNode?.removeFromParent()
+                colorNode = nil
+            } else {
+                if colorNode == nil {
+                    colorNode = SKSpriteNode(color: backgroundColor, size: size)
+                    self.addChild(colorNode!)
+                } else {
+                    colorNode?.color = backgroundColor
+                }
+            }
         }
     }
     
     var backgroundTexture: SKTexture? {
         didSet {
-            backgroundNode?.texture = backgroundTexture
+            if backgroundTexture == nil {
+                colorNode?.removeFromParent()
+                colorNode = nil
+            } else {
+                if colorNode == nil {
+                    colorNode = SKSpriteNode(texture: backgroundTexture, size: size)
+                    self.addChild(colorNode!)
+                } else {
+                    colorNode?.texture = backgroundTexture
+                }
+            }
         }
     }
     
@@ -213,7 +232,8 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
     
     //MARK: Nested nodes
     private var maskedNode: SKCropNode!
-    private var backgroundNode: SKSpriteNode!
+    private var colorNode: SKSpriteNode?
+    private var backgroundNode: SKNode!
     private var contentNodes = [SKSpriteNode]()
     private var indicatorNode: SKSpriteNode?
     
@@ -446,7 +466,7 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
                     )
                 )
                 contentNode.anchorPoint = CGPointMake(0, 1)
-                var accuWidth: CGFloat = 0
+                var accuWidth: CGFloat = -componentWidths[0] + 0.001 //Must have some offset otherwise contentNode won't be rendered
                 for i in 0 ..< index {
                     accuWidth += componentWidths[i]
                 }
@@ -462,22 +482,17 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
             maskedNode = SKCropNode()
             self.addChild(maskedNode)
             
-            backgroundNode = SKSpriteNode(color: backgroundColor, size: size)
+            backgroundNode = SKNode()
             maskedNode.addChild(backgroundNode)
-            
-            backgroundNode.anchorPoint = CGPointMake(0, 0.5)
             backgroundNode.zPosition = -1000
-            
-            backgroundNode.color = backgroundColor
-            backgroundNode.size = size
-            backgroundNode.position = CGPointMake(-size.width / 2, 0)
         }
         
         
         /**
         *  Re-mask
         */
-        maskedNode.maskNode = backgroundNode.copy() as! SKSpriteNode
+        let mask = SKSpriteNode(color: UIColor.blackColor(), size: size)
+        maskedNode.maskNode = mask
         
         /**
         *  reload all components in self
@@ -487,7 +502,6 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
         
         if showsSelectionIndicator && indicatorNode == nil {
             indicatorNode = SKSpriteNode(color: indicatorColor, size: CGSizeMake(size.width, _maxRowHeight))
-            indicatorNode?.anchorPoint = CGPointMake(0, 0.5)
             backgroundNode.addChild(indicatorNode!)
             indicatorNode?.size = CGSizeMake(size.width, _maxRowHeight)
         }
@@ -621,7 +635,7 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
     private func contentOffsetNearPoint(point: CGPoint, inComponent component: Int) -> CGPoint {
         var mult = round((point.y + rowHeightForComponent(component) / 2) / rowHeightForComponent(component))
         let info = positionAndSizeForRow(Int(mult) - 1, forComponent: component)
-        return CGPointMake(0, -info.position.y)
+        return CGPointMake(info.position.x, -info.position.y)
     }
     
     

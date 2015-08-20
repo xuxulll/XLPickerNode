@@ -21,6 +21,8 @@ class GameScene: SKScene, XLPickerNodeDataSource, XLPickerNodeDelegate {
         
         self.addChild(pickerNode)
         
+        pickerNode.backgroundColor = UIColor.blackColor()
+        
         pickerNode.reloadData()
     }
     
