@@ -3,7 +3,7 @@
 ## Overview
 XLPikcer node is a SKNode that works like UIPickerView. It provides you with reuse features like UIPickerView for optimizing efficiency in SpriteKit games.
 
-![Demo Overview](https://)
+![Demo Overview](https://github.com/xuxulll/XLPickerNode/raw/master/Demo/Demo.gif)
 
 ## Basic usage
 
