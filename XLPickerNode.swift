@@ -175,13 +175,13 @@ class XLPickerNode: SKNode, UIGestureRecognizerDelegate {
     /// Set background color or texture
     var backgroundColor: UIColor = UIColor.blackColor() {
         didSet {
-            backgroundNode.color = backgroundColor
+            backgroundNode?.color = backgroundColor
         }
     }
     
     var backgroundTexture: SKTexture? {
         didSet {
-            backgroundNode.texture = backgroundTexture
+            backgroundNode?.texture = backgroundTexture
         }
     }
     
